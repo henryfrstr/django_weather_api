@@ -2,11 +2,14 @@ from django.shortcuts import render
 from decouple import config
 import requests
 from pprint import pprint
+
+from .forms import CityForm
 from .models import City
 
 
 def index(request):
     # 'api.openweathermap.org/data/2.5/weather?q={}&appid=&units=metric'.format("Berlin")
+    form = CityForm()
     cities = City.objects.all()
     url = config("BASE_URL")
 
@@ -27,9 +30,10 @@ def index(request):
         }
 
         city_data.append(weather_data)
-    # print(city_data)
+    print(city_data)
 
     context = {
-        "city_data": city_data
+        "city_data": city_data,
+        "form": form
     }
     return render(request, "weather/index.html", context)
