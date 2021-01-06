@@ -2,20 +2,34 @@ from django.shortcuts import render
 from decouple import config
 import requests
 from pprint import pprint
+from .models import City
 
 
 def index(request):
     # 'api.openweathermap.org/data/2.5/weather?q={}&appid=&units=metric'.format("Berlin")
+    cities = City.objects.all()
     url = config("BASE_URL")
-    city = "Berlin"
-    r = requests.get(url.format(city))
-    content = r.json()
+
+    # content = r.json()
     # print(type(a))
     # pprint(a)
+    city_data = []
+    for city in cities:
+        print(city)
+        r = requests.get(url.format(city))
+        content = r.json()
+
+        weather_data = {
+            "city": city.name,
+            "temp": content["main"]["temp"],
+            "description": content["weather"][0]["description"],
+            "icon": content["weather"][0]["icon"]
+        }
+
+        city_data.append(weather_data)
+    # print(city_data)
+
     context = {
-        "city": city,
-        "temp": content["main"]["temp"],
-        "description": content["weather"][0]["description"],
-        "icon": content["weather"][0]["icon"]
+        "city_data": city_data
     }
     return render(request, "weather/index.html", context)
